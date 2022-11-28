@@ -1,0 +1,69 @@
+==================================
+Setup:
+N: 5
+T: 1
+add: 1.0
+del: 10.0
+wait: 0.1
+temp: 1.0
+integration_time_multiplier: 5.0
+epsilon: 0.1
+tolerance: 0.05
+Data set: Maynard
+Species names: ["CO", "DE", "LO", "PA", "SP"]
+Species label: [1, 2, 3, 4, 5]
+Temperature names: ["17"]
+Temperature label: [1]
+
+==================================
+Statistics:
+Proportion of candidate states: 0.25
+Candidate states: 8
+Total states: 32
+Total natural transitions (may include duplicates): 30
+Total candidate pairs evaluated: 56
+Total viable paths: 30
+Total viable paths (non-trivial length): 0
+Total viable path proportions (viable / # candidate pairs): 0.5357142857142857
+Total non-trivial paths proportions (non-trivial / viable): 0.0
+
+Planning Cost - Mean: 2.566666666666667
+Planning Cost - SD: 3.234867511366107
+Planning Length - Mean: 1.0
+Planning Length - SD: 0.0
+
+Additional Adds - Mean: 0.0
+Additional Adds - SD: 0.0
+Additional Dels - Mean: -0.6333333333333333
+Additional Dels - SD: 0.7183954022841381
+Additional Temps - Mean: 0.0
+Additional Temps - SD: 0.0
+
+==================================
+A matrix - Entry statistics:
+(T = 1)
+A matrix - Mean: -1.4
+A matrix - SD: 14.397221954252146
+r vector - Entry statistics:
+(T = 1)
+r vector - Mean: 21.62
+r vector - SD: 30.834509887462133
+==================================
+A matrices:
+(T = 1)
+5×5 Matrix{Float64}:
+ -8.1   -4.8   -2.5  -2.8   -0.8
+ -5.0  -16.1   -1.8  -2.3   -3.4
+ 35.7   19.9  -24.7  41.1    1.1
+ -5.1   -4.0   -3.4  -8.2   -1.6
+ -2.7   -8.1   -4.2  -2.6  -20.6
+
+==================================
+r vectors:
+(T = 1)
+5-element Vector{Float64}:
+  3.7
+  1.2
+ 72.4
+ 29.7
+  1.1

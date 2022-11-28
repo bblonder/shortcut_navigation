@@ -1,0 +1,109 @@
+==================================
+Setup:
+N: 5
+T: 3
+add: 1.0
+del: 1.0
+wait: 10.0
+temp: 10.0
+integration_time_multiplier: 5.0
+epsilon: 1.0e-5
+tolerance: 0.05
+Data set: Maynard15-19-23
+Species names: ["CO", "DE", "LO", "PA", "SP"]
+Species label: [1, 2, 3, 4, 5]
+Temperature names: ["15", "19", "23"]
+Temperature label: [1, 2, 3]
+
+==================================
+Statistics:
+Proportion of candidate states: 0.8958333333333334
+Candidate states: 86
+Total states: 96
+Total natural transitions (may include duplicates): 1744
+Total candidate pairs evaluated: 7310
+Total viable paths: 2037
+Total viable paths (non-trivial length): 293
+Total viable path proportions (viable / # candidate pairs): 0.2786593707250342
+Total non-trivial paths proportions (non-trivial / viable): 0.14383897889052527
+
+Planning Cost - Mean: 21.391752577319586
+Planning Cost - SD: 8.197086712446373
+Planning Length - Mean: 1.1438389788905252
+Planning Length - SD: 0.3510125538485379
+
+Additional Adds - Mean: 0.011291114383897889
+Additional Adds - SD: 0.10568400179937935
+Additional Dels - Mean: -0.2700049091801669
+Additional Dels - SD: 0.5002441937833983
+Additional Temps - Mean: 0.14138438880706922
+Additional Temps - SD: 0.47701660440283833
+
+==================================
+A matrix - Entry statistics:
+(T = 1)
+A matrix - Mean: -300.13640391104
+A matrix - SD: 1631.2782412978881
+(T = 2)
+A matrix - Mean: -247.41423460815997
+A matrix - SD: 1130.7411449205358
+(T = 3)
+A matrix - Mean: -216.01987857784
+A matrix - SD: 1823.3658005648797
+r vector - Entry statistics:
+(T = 1)
+r vector - Mean: 80.28697618419999
+r vector - SD: 115.81213076250293
+(T = 2)
+r vector - Mean: 71.457918444
+r vector - SD: 99.82113944134609
+(T = 3)
+r vector - Mean: 50.975652813
+r vector - SD: 112.13823085731487
+==================================
+A matrices:
+(T = 1)
+5×5 Matrix{Float64}:
+  -28.27      -30.3721      98.8763      -17.9729     -13.5854
+   -8.27757   -26.2972      27.3126       -6.54253    -12.2037
+ -639.073    -551.752    -6411.11       -914.765    -1148.38
+ -372.23     -511.775     4521.21      -1082.16      -346.142
+   -1.01553    -4.43966      0.331629     -1.9507     -22.823
+(T = 2)
+5×5 Matrix{Float64}:
+ -1931.33     -2247.93     4141.58    -1124.55     -958.375
+    -3.08316     -9.4305     11.232      -2.06984    -3.92562
+  -492.176     -788.586   -1617.55     -621.056    -439.582
+    -4.46721     -4.7108     21.7049     -6.61165    -2.45072
+   -37.9089     -98.3553    137.967     -26.373     -77.3222
+(T = 3)
+5×5 Matrix{Float64}:
+   -6.61409      -12.6995      12.1089      -6.76017      -8.68013
+   -6.59186      -27.2937      17.4873      -8.97697     -12.1351
+   -0.0441212     -0.453149    -5.85676     -0.626421     -1.41691
+   -3.96768      -16.1066      20.047      -10.6775      -10.8062
+ -901.35       -4925.82      6092.37     -1519.21      -4056.42
+
+==================================
+r vectors:
+(T = 1)
+5-element Vector{Float64}:
+   3.775055141
+   1.616446507
+ 260.2417293
+ 134.6695511
+   1.132098873
+(T = 2)
+5-element Vector{Float64}:
+ 221.7339422
+   0.378480801
+ 127.161004
+   0.839857771
+   7.176307448
+(T = 3)
+5-element Vector{Float64}:
+   0.819347826
+   1.085281505
+   0.259219565
+   1.140768969
+ 251.5736462
