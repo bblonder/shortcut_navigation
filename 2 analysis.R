@@ -8,6 +8,7 @@ library(colorRamps)
 library(ranger)
 library(pdp)
 library(tidyverse)
+library(caret)
 
 df_all_joined = read.csv('outputs/df_all_joined.csv')
 df_astar_paths_nontrivial = readRDS('outputs/df_astar_paths_nontrivial_condensed.Rdata')
@@ -25,14 +26,26 @@ df_names = data.frame(name=c('Bucci','Carrara','Maynard','Maynard15-17-19-21-23'
                        n=c(11,11,5,5,5,12),
                        m=c(1,1,1,5,3,1)) %>%
   left_join(df_all_joined %>% 
-              select(dataset, Proportion.of.candidate.states, abundance_grand_mean, abundance_grand_sd) %>% 
+              filter(capped==FALSE) %>%
+              select(dataset, 
+                     epsilon,
+                     Num.edges=Total.natural.transitions..may.include.duplicates.,
+                     Proportion.of.candidate.states, 
+                     abundance_grand_mean, 
+                     abundance_grand_sd) %>% 
+              group_by(dataset, Proportion.of.candidate.states, abundance_grand_mean, abundance_grand_sd) %>%
+              summarize(Num.edges.mean=mean(Num.edges),Num.edges.sd=sd(Num.edges)) %>%
               unique %>%
               rename(name=dataset)) %>%
   mutate(Proportion.of.candidate.states=format(Proportion.of.candidate.states,digits=1),
          abundance_grand_mean=format(abundance_grand_mean,digits=1),
-         abundance_grand_sd=format(abundance_grand_sd,digits=1)) %>%
+         abundance_grand_sd=format(abundance_grand_sd,digits=1),
+         Num.edges.mean=format(Num.edges.mean,digits=1),
+         Num.edges.sd=format(Num.edges.sd,digits=1)) %>%
   rename(`Abundance (grand mean)`=abundance_grand_mean,
          `Abundance (grand s.d.)`=abundance_grand_sd,
+         `Number of edges (mean)`=Num.edges.mean,
+         `Number of edges (s.d.)`=Num.edges.sd,
          `Proportion of states feasible+stable`=Proportion.of.candidate.states,
          `Dataset`=nice_name,
          `Number of species (n)`=n,
@@ -221,7 +234,7 @@ plot_state_diagram <- function(dataset_this,
 
 png(file='figures/g_state_diagram_all.png',width=10*3*100,height=10*2*100,res=100)
 par(mfrow=c(2,3))
-par(mar=c(0,0,4,0))
+par(mar=c(0,0,4.5,0))
 lapply(1:length(df_names$name), function(i) 
   {
   print(i)
@@ -232,13 +245,13 @@ lapply(1:length(df_names$name), function(i)
                      cost_wait = 0.1,
                      cex_vertex = 15.0 / df_names$`Number of species (n)`[i],
                      PLOT_SMALL = FALSE, PLOT_LABELS = FALSE)
-  title(sprintf("(%s) %s", letters[i], df_names$Dataset[i]),adj=0,cex.main=3,line=0)
+  title(sprintf("(%s) %s", letters[i], df_names$Dataset[i]),adj=0,cex.main=4,line=0)
 })
 dev.off()
 
 png(file='figures/g_state_diagram_all_epsilon.png',width=10*6*100,height=10*3*100,res=100)
 par(mfrow=c(3,6))
-par(mar=c(0,0,4,0))
+par(mar=c(0,0,4.5,0))
 epsilons=c(1e-5,1e-3,1e-1)
 lapply(epsilons, function(e)
 {
@@ -253,7 +266,7 @@ lapply(epsilons, function(e)
                        cost_wait = 0.1,
                        cex_vertex = 15.0 / df_names$`Number of species (n)`[i],
                        PLOT_SMALL = FALSE, PLOT_LABELS = FALSE)
-    title(sprintf("(%s) %s - epsilon=%.1e", letters[i], df_names$Dataset[i], e),adj=0,cex.main=3,line=0)
+    title(sprintf("(%s) %s - epsilon=%.1e", letters[i], df_names$Dataset[i], e),adj=0,cex.main=4,line=0)
   })
 })
 dev.off()
@@ -265,7 +278,7 @@ dev.off()
 
 png(file='figures/g_state_diagram_invasion_all.png',width=10*3*100,height=10*2*100,res=100)
 par(mfrow=c(2,3))
-par(mar=c(0,0,4,0))
+par(mar=c(0,0,4.5,0))
 lapply(1:length(df_names$name), function(i) 
 {
   print(i)
@@ -277,7 +290,7 @@ lapply(1:length(df_names$name), function(i)
                      cex_vertex = 15.0 / df_names$`Number of species (n)`[i],
                      PLOT_SMALL = FALSE, PLOT_LABELS = FALSE,
                      DO_INVASION_GRAPH = TRUE)
-  title(sprintf("(%s) %s", letters[i], df_names$Dataset[i]),adj=0,cex.main=3,line=0)
+  title(sprintf("(%s) %s", letters[i], df_names$Dataset[i]),adj=0,cex.main=4,line=0)
 })
 dev.off()
 
@@ -286,7 +299,7 @@ dev.off()
 
 png(file='figures/g_state_diagram_uninvasion_all.png',width=10*3*100,height=10*2*100,res=100)
 par(mfrow=c(2,3))
-par(mar=c(0,0,4,0))
+par(mar=c(0,0,4.5,0))
 lapply(1:length(df_names$name), function(i) 
 {
   print(i)
@@ -298,7 +311,7 @@ lapply(1:length(df_names$name), function(i)
                      cex_vertex = 15.0 / df_names$`Number of species (n)`[i],
                      PLOT_SMALL = FALSE, PLOT_LABELS = FALSE,
                      DO_UNINVASION_GRAPH = TRUE)
-  title(sprintf("(%s) %s", letters[i], df_names$Dataset[i]),adj=0,cex.main=3,line=0)
+  title(sprintf("(%s) %s", letters[i], df_names$Dataset[i]),adj=0,cex.main=4,line=0)
 })
 dev.off()
 
@@ -482,7 +495,7 @@ g_nav_prob = ggplot(df_nav_probs, aes(x=Dataset,
   geom_bar(stat='identity',position='dodge') +
   theme_bw() +
   ylim(0,1) +
-  ylab('Navigation probability') +
+  ylab('Non-brute-force navigation probability') +
   scale_fill_brewer(palette='Oranges',name=expression(paste("log"[10], "(", epsilon,")")))
 
 
@@ -730,15 +743,18 @@ plot_path <- function(path_this, parsed_names)
 plot_paths_example_indirect_removal = function(id_run, start_contains, goal_does_not_contain, which_id_ss, view=FALSE)
 {
   paths_interesting = df_astar_paths_nontrivial[[id_run]] %>% 
-    filter(a_star_ops > 1) %>% 
-    # must lose a species but not directly
-    filter(grepl(pattern=paste(start_contains), x=start, fixed=TRUE)==TRUE) %>% 
-    filter(grepl(pattern=paste(goal_does_not_contain), x=goal, fixed=TRUE)==FALSE) %>% 
-    filter(grepl(pattern=sprintf("(-%d)",goal_does_not_contain), x=full_path, fixed=TRUE)==FALSE) %>% 
+    filter(grepl(pattern=paste(start_contains), x=start, fixed=TRUE)==TRUE) # contains the species to start with
+  
+  print(nrow(paths_interesting)) #print how many states are worth considering
+  
+  paths_interesting = paths_interesting %>%
+    filter(a_star_ops > 1) %>% # is shortcut
+    filter(grepl(pattern=paste(goal_does_not_contain), x=goal, fixed=TRUE)==FALSE) %>% # deletion of the species
+    filter(grepl(pattern=sprintf("(-%d)",goal_does_not_contain), x=full_path, fixed=TRUE)==FALSE) %>% # must lose a species but not directly
     pull(full_path)
   
-  print(length(paths_interesting))
-  print(nrow(df_astar_paths_nontrivial[[id_run]]))
+  print(length(paths_interesting)) # print how many states match criteria
+  print(nrow(df_astar_paths_nontrivial[[id_run]])) # print total considered
   
   if (view==TRUE)
   {
@@ -785,11 +801,15 @@ ids_maynard5 = df_all_joined %>%
 plot_paths_example_env_change = function(id_run, start_env, goal_env, which_id_ss=1, view=FALSE)
 {
   paths_interesting = df_astar_paths_nontrivial[[id_run]] %>% 
-    filter(a_star_ops > 1) %>% 
     filter(grepl(pattern="|1",x=start,fixed=TRUE)==TRUE) %>% # starting in environment one
-    filter(grepl(pattern="|1",x=goal,fixed=TRUE)==TRUE) %>%
-    filter(grepl(pattern="{(*",x=full_path,fixed=TRUE)==TRUE) %>%
-    filter((net_add - net_del) < 0) %>%
+    filter(grepl(pattern="|1",x=goal,fixed=TRUE)==TRUE) # and ending in environment one
+  
+  print(nrow(paths_interesting)) # number of states with no net env change
+  
+  paths_interesting = paths_interesting  %>%
+    filter(a_star_ops > 1) %>% # shortcuts
+    filter(grepl(pattern="{(*",x=full_path,fixed=TRUE)==TRUE) %>% # has at least one environmental change
+    filter((net_add - net_del) < 0) %>% # has reduction in richness
     pull(full_path)
   
   print(length(paths_interesting))
@@ -823,7 +843,7 @@ g_paths_maynard5 = plot_paths_example_env_change(ids_maynard5, which_id_ss = c(3
 g_paths = ggarrange(plotlist=c(g_paths_bucci_no_clodif$g, g_paths_maynard5$g), 
                     nrow=2,ncol=2,
                     labels='auto')
-ggsave(g_paths, file='figures/g_paths.png', width=12,height=7)
+ggsave(g_paths, file='figures/g_paths.png', width=9,height=7)
 
 
 
@@ -846,6 +866,8 @@ ggsave(g_paths, file='figures/g_paths.png', width=12,height=7)
 
 
 #### RANDOM FORESTS
+set.seed(1)
+
 calculate_jaccard <- function(from, to)
 {
   # this works by ignoring the environmental variable (after the | in the string)
@@ -889,7 +911,7 @@ df_all_transitions_ss = df_all_transitions %>%
   ungroup %>%
   mutate(path.exists = !is.na(a_star_ops)) %>%
   mutate(path.better.than.nominal = ifelse(path.exists, a_star_ops > 1, NA)) %>%
-  mutate(path.type = ifelse(path.exists, ifelse(path.better.than.nominal, "shortcut", "direct"),"none"))
+  mutate(path.type = ifelse(path.exists, ifelse(path.better.than.nominal, "Shortcut", "Direct"),"Brute-force"))
 
 stats_transitions_ss = rbindlist(lapply(1:nrow(df_all_transitions_ss), function(i) {
   print(i/nrow(df_all_transitions_ss))
@@ -958,12 +980,15 @@ df_all_transitions_ss = df_all_transitions_ss %>%
   mutate_at(vars(jaccard), ~replace(., is.nan(.), 1)) %>%
   mutate(abundance_delta = abundance_mean_to - abundance_mean_from) %>%
   mutate(log10_epsilon = log10(epsilon)) %>%
-  mutate(path.type = factor(path.type,levels=c('none','direct','shortcut')))
+  mutate(path.type = factor(path.type,levels=c('Brute-force','Direct','Shortcut')))
 
 df_all_transitions_ss_balanced = df_all_transitions_ss %>%
   group_by(path.type) %>%
   sample_n(min(table(df_all_transitions_ss$path.type))) %>%
   ungroup
+
+# save just in case
+saveRDS(df_all_transitions_ss_balanced, file='outputs/df_all_transitions_ss_balanced.Rdata')
 
 
 # make random forest models
@@ -973,8 +998,25 @@ m_rf_path_type = ranger(path.type ~ abundance_delta + log10_epsilon + richness_d
                         importance='permutation',
                         probability=TRUE)
 
-# check prediction error
-m_rf_path_type$prediction.error
+
+# estimate a cross-validation accuracy
+m_rf_path_type_cv <- caret::train(path.type ~ abundance_delta + log10_epsilon + richness_delta + jaccard + n + t + dataset + cost_add + cost_delete + cost_environment + cost_wait,
+                      data=df_all_transitions_ss_balanced, 
+                      trControl=trainControl(method="cv",
+                                             number=10, 
+                                             allowParallel=FALSE, 
+                                             verboseIter=TRUE), 
+                      method="ranger",
+                      importance='permutation',
+                      #probability=TRUE, # I think this is set by default in the train function, uncommenting causes an error
+                      tuneGrid=expand.grid(
+                        mtry=3,
+                        min.node.size=1,
+                        splitrule='gini'),
+                      tuneLength=1)
+
+print(m_rf_path_type_cv)
+
 
 imp_raw = sort(importance(m_rf_path_type))
 print(imp_raw)
@@ -1008,12 +1050,12 @@ ggsave(g_importance, file='figures/g_importance.png',width=7,height=4)
 pdps_path_type = rbindlist(lapply(1:length(levels(df_all_transitions_ss$path.type)), function(i) {
   print(i)
   df_pdp = pdp::partial(m_rf_path_type,
-                        pred.var=c('richness_delta','abundance_delta','dataset'),
+                        pred.var=c('richness_delta','abundance_delta'),
                         progress=TRUE,
                         type='classification',
                         which.class=i,
                         prob=TRUE,
-                        grid.resolution=5)
+                        grid.resolution=10)
   df_pdp = df_pdp %>% cbind(class=levels(df_all_transitions_ss$path.type)[i])
   
   return(df_pdp)
@@ -1023,7 +1065,7 @@ g_rf_pdps = ggplot(pdps_path_type, aes(x=richness_delta,
                                           y=yhat,
                                           color=abundance_delta,
                                           group=abundance_delta)) + 
-  geom_line(size=2,alpha=0.9) + 
+  geom_line(size=1.5,alpha=0.9) + 
   facet_grid(~class,scales='free_y') +
   scale_color_distiller(palette='Spectral',name='∆ Abundance',direction=1) +
   theme_bw() +
@@ -1046,7 +1088,7 @@ make_pdp_1d <- function(xvar)
                           type='classification',
                           which.class=i,
                           prob=TRUE,
-                          grid.resolution=5)
+                          grid.resolution=10)
     df_pdp = df_pdp %>% cbind(class=levels(df_all_transitions_ss$path.type)[i])
     
     return(df_pdp)
@@ -1072,9 +1114,8 @@ g_pdps_1d = ggplot(pdps_1d_all_with_xvars, aes(x=xvar,y=yhat,color=class)) +
   ylim(0,1) +
   xlab("") + 
   ylab("Probability of path type (predicted)") +
-  theme(axis.text.x=element_blank()) +
   scale_color_brewer(palette='Set1',name='Path type')
-ggsave(g_pdps_1d, file='figures/g_pdps_1d.png', width=7,height=7)
+ggsave(g_pdps_1d, file='figures/g_pdps_1d.png', width=7,height=8)
 
 
 
